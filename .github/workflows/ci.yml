@@ -1,0 +1,55 @@
+name: tests
+
+# No `pip install` step, and that is not an oversight. Everything in this repo is
+# pure standard library, so CI has nothing to resolve and nothing to pin. If a
+# dependency ever creeps in, this workflow starts failing on import — which is the
+# right moment to decide whether the dependency is worth it.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: reconcile
+        working-directory: reconcile
+        run: python -m unittest test_reconcile
+
+      - name: audit log
+        working-directory: audit
+        run: python -m unittest test_audit_log
+
+      - name: signals
+        working-directory: signals
+        run: python -m unittest test_signals
+
+      - name: offline demo
+        # The demo is a test: it asserts a clean ledger exits 0 and a planted
+        # divergence exits 1, so a regression that stops detecting divergence
+        # fails the build rather than quietly shipping a reconciler that always
+        # says everything is fine.
+        run: ./demo/run_demo.sh
+
+      - name: no wallet addresses outside the protocol allowlist
+        run: |
+          found=$(grep -rhoE '0x[a-fA-F0-9]{40}' --include='*.py' --include='*.sh' . \
+                  | tr 'A-F' 'a-f' | sort -u \
+                  | grep -vE '^0x(4d97dcd97ec945f40cf65f87097ace5ea0476045|3a3bd7bb9528e159577f7c2e685cc81a765002e2|d91e80cf2e7be2e162c6513ced06f1dd0da35296|c011a7e12a19f7b1f670d46f03b03f3342e82dfb|2791bca1f2de4661ed88a30c99a7a9449aa84174|3c499c542cef5e3811e1192ce70d8cc03d5c3359|4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e|c5d563a36ae78145c45a50134d48a1215220f80a|56c79347e95530c01a2fc76e732f9566da16e113|93070a847efef7f70739046a929d47a521f5b8ee|a374094527e1673a86de625aa59517c5de346d32|4cd00e387622c35bddb9b4c962c136462338bc31|b92fe925dc43a0ecde6c8b1a2709c170ec4fff4f|68b3465833fb72a70ecdf485e0e4c7bd8665fc45|d36ec33c8bed5a9f7b6630855f1533455b98a418|0{40}|d{62}[0-9a-f]{2}|9{62}|a{40}|0{36}dead)$' \
+                  || true)
+          if [ -n "$found" ]; then
+            echo "::error::non-allowlisted address(es) found:"; echo "$found"; exit 1
+          fi
+          echo "clean"
