@@ -24,6 +24,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: lint (pyflakes)
+        # CI-only tool, not a project dependency: the repo itself remains pure stdlib.
+        run: |
+          pip install pyflakes
+          python -m pyflakes reconcile/*.py audit/*.py signals/*.py demo/*.py
+
       - name: reconcile
         working-directory: reconcile
         run: python -m unittest test_reconcile

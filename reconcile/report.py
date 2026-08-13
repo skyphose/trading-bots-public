@@ -317,7 +317,6 @@ def print_report():
         n_open    = len([k for k in placed if k not in settled and k not in exits])
 
         wins     = [r for r in settled.values() if r.get("won")]
-        losses   = [r for r in settled.values() if r.get("won") is False]
         win_rate = len(wins) / n_settled * 100 if n_settled else 0
 
         pnl_list = [r.get("estimated_pnl_usdc") or r.get("estimated_pnl_usd") or 0 for r in settled.values()]

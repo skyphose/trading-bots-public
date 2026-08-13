@@ -5,3 +5,8 @@ reconcile/shared-tmp/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Local environments / tooling output
+.venv/
+venv/
+gitleaks-report.json

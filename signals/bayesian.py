@@ -16,8 +16,8 @@ For binary YES/NO markets we maintain:
 
 import math
 import logging
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
+from typing import List
 
 logger = logging.getLogger(__name__)
 
