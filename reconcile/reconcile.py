@@ -750,7 +750,7 @@ def check(con: sqlite3.Connection) -> int:
 
     if phantom:
         problems += len(phantom)
-        print(f"\n[3] Locally 'placed' trades with NO on-chain fill (booked but never filled):")
+        print("\n[3] Locally 'placed' trades with NO on-chain fill (booked but never filled):")
         for bot, amt in sorted(phantom.items(), key=lambda x: -x[1]):
             print(f"      {bot:18} ${amt:,.2f}")
         _emit_status("3", len(phantom), sum(phantom.values()), True)
@@ -772,7 +772,7 @@ def check(con: sqlite3.Connection) -> int:
     sold = con.execute("SELECT COALESCE(SUM(usdc_size),0) FROM fills WHERE side='SELL'").fetchone()[0]
     red = con.execute("SELECT COALESCE(SUM(usdc_size),0) FROM redemptions").fetchone()[0]
     mtm = sold + red - spent + sum(p["current"] for p in _latest_positions(con).values())
-    print(f"\n[4] Reported vs measured P&L")
+    print("\n[4] Reported vs measured P&L")
     print(f"      audit 'estimated_pnl' over {n_est} settled rows : ${est:>+10,.2f}")
     print(f"      on-chain mark-to-market                        : ${mtm:>+10,.2f}")
     print(f"      OVERSTATEMENT                                  : ${est - mtm:>+10,.2f}")
@@ -814,7 +814,7 @@ def review(con: sqlite3.Connection) -> int:
         a[0] += staked; a[1] += red.get(cid, 0.0); a[2] += 1
 
     print("=" * 72)
-    print(f"REVIEW — return on stake by bot and month (settled markets only)")
+    print("REVIEW — return on stake by bot and month (settled markets only)")
     print("=" * 72)
     print(f"{'bot':18}{'month':9}{'n':>5}{'staked':>10}{'returned':>10}{'P&L':>9}{'per $1':>9}")
     print("-" * 72)

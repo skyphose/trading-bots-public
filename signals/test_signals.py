@@ -6,7 +6,6 @@ expensive and silent: nothing crashes, the bot simply sizes wrong for weeks. The
 tests below pin the properties that must hold rather than golden numbers, so they
 still mean something after a refactor.
 """
-import math
 import unittest
 
 import devig
